@@ -1,0 +1,14 @@
+$WhatWeWillCoverProblems = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Problems/1.pdf));
+$WhatWeWillCoverSolutions = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Solutions/1.pdf));
+$SignificantFiguresReadings = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Readings/1.pdf));
+$SignificantFiguresContinuedSolutions = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Solutions/1.pdf));
+$DimensionalAnalysisConversionFactorsReadings = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Readings/1.pdf));
+$DimensionalAnalysisConversionFactorsProblems = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Problems/1.pdf));
+$IsotopesNaturalAbundanceandMolecularMassReadings = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Readings/1.pdf));
+$IsotopesNaturalAbundanceandMolecularMassProblems = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Problems/1.pdf));
+$IsotopesNaturalAbundanceandMolecularMassSolutions = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Solutions/1.pdf));
+$PeriodicTableRevisitedReadings = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Readings/1.pdf));
+$PeriodicTableRevisitedProblems = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Problems/1.pdf));
+$PeriodicTableRevisitedSolutions = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Solutions/1.pdf));
+$NamingReadings = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Readings/1.pdf));
+$NamingProblems = Chemtext::create(array('chemtext_type' => 'pdf', 'chemtext_name' => 'OpenStax Chemistry','url' => ../uploads/Chem1A/Problems/1.pdf));

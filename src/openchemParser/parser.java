@@ -1,11 +1,10 @@
 package openchemParser;
 
-import java.io.File; 
+import java.io.File;  
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +25,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 
 public class parser {
+	
+	  public static int rowCounter = 1;
+	
 	  public static void splitPDF(FileInputStream inputStream,
 	          FileOutputStream outputStream, int fromPage, int toPage) {
 
@@ -74,31 +76,48 @@ public class parser {
 	}
 	  
 	public static void makePdfs(String pdfPages, String type, String rootDirName){
+		String inFile = "openstax-chem.pdf";
+		int rangeFrom;
+		int rangeTo;
 		if (pdfPages.contains(",")){
-        	List<String> chunks = Arrays.asList(pdfPages.split(","));
+        	List<String> chunks = Arrays.asList(pdfPages.replaceAll("\\s", "").split(","));
         	for (int i = 0; i < chunks.size(); i++){
         		List<String> pdfRange = Arrays.asList(chunks.get(i).split("-"));
         		try{
-        			splitPDF(new FileInputStream("openstax-chem.pdf"),
-        					new FileOutputStream("D:/openchemPdfs/"+rootDirName
-        							+"/"+type+"/"+(Integer.toString(i)+".pdf")), Integer.parseInt(pdfRange.get(0)), 
-        							Integer.parseInt(pdfRange.get(1)));
+        			String outFile = "D:/openchemPdfs/"+rootDirName
+							+"/"+type+"/"+(Integer.toString(i+1)+".pdf");
+        			rangeFrom = Integer.parseInt(pdfRange.get(0));
+        			rangeTo = Integer.parseInt(pdfRange.get(1));
+        			splitPDF(new FileInputStream(inFile),
+        					new FileOutputStream(outFile), rangeFrom, rangeTo);
         		}
         		catch (Exception e){
-        			System.err.println(e.getMessage());
+        			System.out.println("First Exception, Row Number: " + rowCounter);
+        			e.printStackTrace();
         		}
         	}
         }
 		else{
-			List<String> pdfRange = Arrays.asList(pdfPages.split("-"));
+			List<String> pdfRange = Arrays.asList(pdfPages.replaceAll("\\s", "").split("-"));
     		try{
-    			splitPDF(new FileInputStream("openstax-chem.pdf"),
-    					new FileOutputStream("D:/openchemPdfs/"+rootDirName
-    							+"/"+type+"/"+"1.pdf"), Integer.parseInt(pdfRange.get(0)), 
-    							Integer.parseInt(pdfRange.get(1)));
+    			
+    			String outFile = "D:/openchemPdfs/" + rootDirName
+    					+ "/" + type + "/" + "1.pdf";
+    			if (pdfRange.size() > 1){
+	    			rangeFrom = Integer.parseInt(pdfRange.get(0));
+	    			rangeTo = Integer.parseInt(pdfRange.get(1));
+    			}
+    			else{
+    				rangeFrom = rangeTo = Integer.parseInt(pdfRange.get(0));
+    			}
+    			//System.out.print(outFile + " " + pdfRange.get(0) + " " + pdfRange.get(1));
+    			splitPDF(new FileInputStream(inFile),
+    					new FileOutputStream(outFile), rangeFrom, 
+    							rangeTo);
     		}
     		catch (Exception e){
-    			System.err.println(e.getMessage());
+    			System.out.println("Second Exception, Row Number: " + rowCounter);
+    			e.printStackTrace();
     		}
 		}
 	}
@@ -109,7 +128,7 @@ public class parser {
         {
         	PrintWriter writer = new PrintWriter("laravelSeed.txt", "UTF-8");
         	
-            FileInputStream file = new FileInputStream(new File("chemsubset.xlsx"));
+            FileInputStream file = new FileInputStream(new File("Chem 1A.xlsx"));
  
             //Create Workbook instance holding reference to .xlsx file
             XSSFWorkbook workbook = new XSSFWorkbook(file);
@@ -119,48 +138,53 @@ public class parser {
  
             //Iterate through each rows one by one
             Iterator<Row> rowIterator = sheet.iterator();
+            
+            DataFormatter dataFormatter = new DataFormatter();
             while (rowIterator.hasNext())
             {
                 Row row = rowIterator.next();
                 //For each row, iterate through all the columns
-                Iterator<Cell> cellIterator = row.cellIterator();
                 
                 // Title
                 Cell titleCell = row.getCell(0);
+                Cell readingsCell = row.getCell(3, Row.RETURN_BLANK_AS_NULL);
+                Cell problemsCell = row.getCell(4, Row.RETURN_BLANK_AS_NULL);
+                Cell solutionsCell = row.getCell(5, Row.RETURN_BLANK_AS_NULL);
                 String rootDirectoryName = titleCell.getStringCellValue().replaceAll("\\W", "");
-                new File("D:\\openchemPdfs\\"+rootDirectoryName).mkdir();
+                
+                if (readingsCell != null || problemsCell != null || solutionsCell != null){
+                	new File("D:\\openchemPdfs\\"+rootDirectoryName).mkdir();
+                }
                 
                 // Readings
-                Cell readingsCell = row.getCell(3);
-                System.out.println(readingsCell.getStringCellValue());
                 if (readingsCell != null){
-	                String readingsString = readingsCell.getStringCellValue();
+	                String readingsString = dataFormatter.formatCellValue(readingsCell);
 	                new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Readings").mkdir();
 	                makePdfs(readingsString, "Readings", rootDirectoryName);
                 }
                 
                 // Problems
-                Cell problemsCell = row.getCell(4);
                 if (problemsCell != null){
-	                String problemsString = problemsCell.getStringCellValue();
+	                String problemsString = dataFormatter.formatCellValue(problemsCell);
 	        		new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Problems").mkdir();
 	        		makePdfs(problemsString, "Problems", rootDirectoryName);
                 }
                 
         		// Solutions
-                Cell solutionsCell = row.getCell(5);
                 if (solutionsCell != null){
-	                String solutionsString = solutionsCell.getStringCellValue();
+	                String solutionsString = dataFormatter.formatCellValue(solutionsCell);
 	                new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Solutions").mkdir();
 	                makePdfs(solutionsString, "Solutions", rootDirectoryName);    
                 }
-                
+                rowCounter ++;
+ 
             }
             file.close();
             writer.close();
         }
         catch (Exception e)
         {
+        	System.out.println("Third Exception, Row Number: " + rowCounter);
             e.printStackTrace();
         }		
 		
