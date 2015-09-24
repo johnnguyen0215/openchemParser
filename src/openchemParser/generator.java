@@ -33,24 +33,44 @@ public class generator {
         return null;
 	}
 	
-	public static ArrayList<String> generateFileCode(String pdfPages, String type, String rootDirName, PrintWriter writer){
+	public static ArrayList<String> generateFileCode(String pdfPages, String dirName, String rootDirName, PrintWriter writer){
+		String category = "";
+		String type = "";
+		String typeName = "";
+		switch(dirName){
+			case "Readings":
+				category = "Chemtext";
+				type = "chemtext_type";
+				typeName = "chemtext_name";
+				break;
+			case "Problems":
+				category = "Problem";
+				type = "problem_type";
+				typeName = "problem_name";
+				break;
+			case "Solutions":
+				category = "Solution";
+				type = "solution_type";
+				typeName = "solution_name";
+				break;
+		}
 		ArrayList<String> variables = new ArrayList<String>();
 		if (pdfPages.contains(",")){
         	List<String> chunks = Arrays.asList(pdfPages.replaceAll("\\s", "").split(","));
         	for (int i = 0; i < chunks.size(); i++){
-        		String code = "$"+rootDirName + type + (i+1) + " = " + "Chemtext::create(array('chemtext_type' "
-        				+ "=> 'pdf', 'chemtext_name' => 'OpenStax Chemistry',"
-        				+ "'url' => " + "\"../uploads/Chem1A/"+type+"/"+((i+1)+".pdf\"));");
+        		String code = "$"+rootDirName + dirName + (i+1) + " = " + category + "::create(array('" + type
+        				+ "' => 'pdf', '" + typeName + "' => 'OpenStax Chemistry', "
+        				+ "'url' => " + "\"../uploads/Chem1A/"+dirName+"/"+((i+1)+".pdf\"));");
         		writer.println(code);
-        		variables.add("$"+rootDirName+type);
+        		variables.add("$" + rootDirName + dirName + (i+1));
         	}
 		}
 		else{
-			String code = "$"+rootDirName + type + " = " + "Chemtext::create(array('chemtext_type' "
-    				+ "=> 'pdf', 'chemtext_name' => 'OpenStax Chemistry',"
-    				+ "'url' => " + "\"../uploads/Chem1A/"+type+"/"+"1.pdf\"));";
+			String code = "$"+rootDirName + dirName + " = " + category + "::create(array('" + type
+    				+ "' => 'pdf', '" + typeName + "' => 'OpenStax Chemistry', "
+    				+ "'url' => " + "\"../uploads/Chem1A/"+dirName+"/"+"1.pdf\"));";
 			writer.println(code);
-			variables.add("$"+rootDirName+type);
+			variables.add("$" + rootDirName + dirName);
 		}
 		
 		return variables;
