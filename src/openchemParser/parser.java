@@ -84,7 +84,7 @@ public class parser {
         	for (int i = 0; i < chunks.size(); i++){
         		List<String> pdfRange = Arrays.asList(chunks.get(i).split("-"));
         		try{
-        			String outFile = "D:/openchemPdfs/"+rootDirName
+        			String outFile = "C:/openchemPdfs/"+rootDirName
 							+"/"+type+"/"+(Integer.toString(i+1)+".pdf");
         			rangeFrom = Integer.parseInt(pdfRange.get(0));
         			rangeTo = Integer.parseInt(pdfRange.get(1));
@@ -101,7 +101,7 @@ public class parser {
 			List<String> pdfRange = Arrays.asList(pdfPages.replaceAll("\\s", "").split("-"));
     		try{
     			
-    			String outFile = "D:/openchemPdfs/" + rootDirName
+    			String outFile = "C:/openchemPdfs/" + rootDirName
     					+ "/" + type + "/" + "1.pdf";
     			if (pdfRange.size() > 1){
 	    			rangeFrom = Integer.parseInt(pdfRange.get(0));
@@ -153,27 +153,27 @@ public class parser {
                 String rootDirectoryName = titleCell.getStringCellValue().replaceAll("\\W", "");
                 
                 if (readingsCell != null || problemsCell != null || solutionsCell != null){
-                	new File("D:\\openchemPdfs\\"+rootDirectoryName).mkdir();
+                	new File("C:\\openchemPdfs\\"+rootDirectoryName).mkdir();
                 }
                 
                 // Readings
                 if (readingsCell != null){
 	                String readingsString = dataFormatter.formatCellValue(readingsCell);
-	                new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Readings").mkdir();
+	                new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Readings").mkdir();
 	                makePdfs(readingsString, "Readings", rootDirectoryName);
                 }
                 
                 // Problems
                 if (problemsCell != null){
 	                String problemsString = dataFormatter.formatCellValue(problemsCell);
-	        		new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Problems").mkdir();
+	        		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Problems").mkdir();
 	        		makePdfs(problemsString, "Problems", rootDirectoryName);
                 }
                 
         		// Solutions
                 if (solutionsCell != null){
 	                String solutionsString = dataFormatter.formatCellValue(solutionsCell);
-	                new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Solutions").mkdir();
+	                new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Solutions").mkdir();
 	                makePdfs(solutionsString, "Solutions", rootDirectoryName);    
                 }
                 rowCounter ++;
@@ -212,14 +212,14 @@ for (int i = 0; i < 6; i++){
 		  	switch(i){
 		  	case 0:
 		  		rootDirectoryName = stringVal;
-		  		new File("D:\\openchemPdfs\\"+rootDirectoryName).mkdir();
+		  		new File("C:\\openchemPdfs\\"+rootDirectoryName).mkdir();
 		  		break;
 		  	case 3:
-		  		new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Readings").mkdir();
+		  		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Readings").mkdir();
 		  	case 4:
-		  		new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Problems").mkdir();
+		  		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Problems").mkdir();
 		  	case 5:
-		  		new File("D:\\openchemPdfs\\"+rootDirectoryName+"\\Solutions").mkdir();
+		  		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Solutions").mkdir();
 		  	}
 		  	if (i == 0){
 		  		stringVal = stringVal.replaceAll("\\W", "");

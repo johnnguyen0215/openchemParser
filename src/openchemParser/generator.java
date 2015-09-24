@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -32,28 +33,56 @@ public class generator {
         return null;
 	}
 	
-	public static String generateFileCode(String pdfPages, String type, String rootDirName){
-		String code = "";
+	public static ArrayList<String> generateFileCode(String pdfPages, String type, String rootDirName, PrintWriter writer){
+		ArrayList<String> variables = new ArrayList<String>();
 		if (pdfPages.contains(",")){
         	List<String> chunks = Arrays.asList(pdfPages.replaceAll("\\s", "").split(","));
         	for (int i = 0; i < chunks.size(); i++){
-        		code += "$"+rootDirName + type + (i+1) + " = " + "Chemtext::create(array('chemtext_type' "
+        		String code = "$"+rootDirName + type + (i+1) + " = " + "Chemtext::create(array('chemtext_type' "
         				+ "=> 'pdf', 'chemtext_name' => 'OpenStax Chemistry',"
-        				+ "'url' => " + "../uploads/Chem1A/"+type+"/"+((i+1)+".pdf));");
-        		if (i+1 < chunks.size()){
-        			code += "\n";
-        		}
+        				+ "'url' => " + "\"../uploads/Chem1A/"+type+"/"+((i+1)+".pdf\"));");
+        		writer.println(code);
+        		variables.add("$"+rootDirName+type);
         	}
 		}
 		else{
-			code += "$"+rootDirName + type + " = " + "Chemtext::create(array('chemtext_type' "
+			String code = "$"+rootDirName + type + " = " + "Chemtext::create(array('chemtext_type' "
     				+ "=> 'pdf', 'chemtext_name' => 'OpenStax Chemistry',"
-    				+ "'url' => " + "../uploads/Chem1A/"+type+"/"+"1.pdf));";
+    				+ "'url' => " + "\"../uploads/Chem1A/"+type+"/"+"1.pdf\"));";
+			writer.println(code);
+			variables.add("$"+rootDirName+type);
 		}
 		
-		return code;
+		return variables;
 		
 	}
+	
+	public static String generateTopicCode(String title, String videoUrl, String videoId, String videoDescription, PrintWriter writer){
+		String code = "$" + title.replaceAll("\\W", "") + " = " + "Topic::create(array('topic_name' => \"" + title + "\", 'video_url' => '"
+		+ videoUrl + "', 'video_id' => \"" + videoId + "\", 'video_description' => \"" + videoDescription + "\"));";
+		writer.println(code);
+		
+		return "$" + title.replaceAll("\\W", "");
+	}
+	
+	public static void generateAttachmentsCode(String titleVar, ArrayList<String> readingsVars, ArrayList<String> problemsVars, ArrayList<String> solutionsVars,
+			PrintWriter writer){
+		String code;
+		for (String var : readingsVars){
+			code = titleVar + "->chemtexts()->attach(" + var + "->id);";
+			writer.println(code);
+		}
+		for (String var : problemsVars){
+			code = titleVar + "->problems()->attach(" + var + "->id);";
+			writer.println(code);
+		}
+		for (String var : solutionsVars){
+			code = titleVar + "->solutions()->attach(" + var + "->id);";
+			writer.println(code);
+		}
+	}
+	
+	
 	
 	public static void main(String[] args) {
 
@@ -62,7 +91,7 @@ public class generator {
         {
         	PrintWriter writer = new PrintWriter("laravelSeed.txt", "UTF-8");
         	
-            FileInputStream file = new FileInputStream(new File("chemsubset.xlsx"));
+            FileInputStream file = new FileInputStream(new File("Chem 1A.xlsx"));
  
             //Create Workbook instance holding reference to .xlsx file
             XSSFWorkbook workbook = new XSSFWorkbook(file);
@@ -80,7 +109,7 @@ public class generator {
             		+ "general properties of the elements; covalent, ionic, and metallic bonding; "
             		+ "intermolecular forces; mass relationships. General Chemistry (Chem 1A) is part of "
             		+ "OpenChemThis video is part of a 23-lecture undergraduate-level course titled "
-            		+ "\"General Chemistry\" taught at UC Irvine by Amanda Brindley, Ph.D."; 
+            		+ "'General Chemistry' taught at UC Irvine by Amanda Brindley, Ph.D."; 
 
             while (rowIterator.hasNext())
             {
@@ -104,30 +133,37 @@ public class generator {
                 String youtubeUrl = "https://www.youtube.com/watch?start="+
                 videoIn+"&end="+videoOut+"&v="+videoId;
                 
+                ArrayList<String> readingsVariables = new ArrayList<String>();
+                ArrayList<String> problemsVariables = new ArrayList<String>();
+                ArrayList<String> solutionsVariables = new ArrayList<String>();
+                
                 if (readingsCell != null){
 	                String readingsString = dataFormatter.formatCellValue(readingsCell);
-	                writer.println(generateFileCode(readingsString, "Readings",
-	                		title.replaceAll("\\W", "")));
+	                readingsVariables = generateFileCode(readingsString, "Readings",
+	                		title.replaceAll("\\W", ""), writer);
                 }
                 
                 if (problemsCell != null){
                 	String problemsString = dataFormatter.formatCellValue(problemsCell);
-	                writer.println(generateFileCode(problemsString, "Problems",
-	                		title.replaceAll("\\W", "")));
+                	problemsVariables = generateFileCode(problemsString, "Problems",
+	                		title.replaceAll("\\W", ""), writer);
                 }
                 
                 if (solutionsCell != null){
                 	String solutionsString = dataFormatter.formatCellValue(solutionsCell);
-	                writer.println(generateFileCode(solutionsString, "Solutions",
-	                		title.replaceAll("\\W", "")));
+	                solutionsVariables = generateFileCode(solutionsString, "Solutions",
+	                		title.replaceAll("\\W", ""), writer);
                 }
                 
+                String topicVariable = generateTopicCode(title, youtubeUrl, videoId, chem1ADescription, writer);
                 
+                generateAttachmentsCode(topicVariable, readingsVariables, problemsVariables, solutionsVariables, writer);
                 
                 
             }
             file.close();
             writer.close();
+            workbook.close();
         }
         catch (Exception e)
         {
