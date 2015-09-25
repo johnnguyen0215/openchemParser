@@ -60,7 +60,7 @@ public class generator {
         	for (int i = 0; i < chunks.size(); i++){
         		String code = "$"+rootDirName + dirName + (i+1) + " = " + category + "::create(array('" + type
         				+ "' => 'pdf', '" + typeName + "' => 'OpenStax Chemistry', "
-        				+ "'url' => " + "\"../uploads/Chem1A/"+dirName+"/"+((i+1)+".pdf\"));");
+        				+ "'url' => " + "\"../uploads/Chem1A/" + rootDirName + "/" + dirName+"/"+((i+1)+".pdf\"));");
         		writer.println(code);
         		variables.add("$" + rootDirName + dirName + (i+1));
         	}
@@ -68,7 +68,7 @@ public class generator {
 		else{
 			String code = "$"+rootDirName + dirName + " = " + category + "::create(array('" + type
     				+ "' => 'pdf', '" + typeName + "' => 'OpenStax Chemistry', "
-    				+ "'url' => " + "\"../uploads/Chem1A/"+dirName+"/"+"1.pdf\"));";
+    				+ "'url' => " + "\"../uploads/Chem1A/"+ rootDirName + "/" + dirName+"/"+"1.pdf\"));";
 			writer.println(code);
 			variables.add("$" + rootDirName + dirName);
 		}
