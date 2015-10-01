@@ -75,7 +75,7 @@ public class parser {
 		      }
 	}
 	  
-	public static void makePdfs(String pdfPages, String type, String rootDirName){
+	public static void makePdfs(String pdfPages, String type, String course, String rootDirName){
 		String inFile = "openstax-chem.pdf";
 		int rangeFrom;
 		int rangeTo;
@@ -84,7 +84,7 @@ public class parser {
         	for (int i = 0; i < chunks.size(); i++){
         		List<String> pdfRange = Arrays.asList(chunks.get(i).split("-"));
         		try{
-        			String outFile = "C:/openchemPdfs/"+rootDirName
+        			String outFile = "D:/openchemPdfs/"+course+"/"+rootDirName
 							+"/"+type+"/"+(Integer.toString(i+1)+".pdf");
         			rangeFrom = Integer.parseInt(pdfRange.get(0));
         			rangeTo = Integer.parseInt(pdfRange.get(1));
@@ -101,7 +101,7 @@ public class parser {
 			List<String> pdfRange = Arrays.asList(pdfPages.replaceAll("\\s", "").split("-"));
     		try{
     			
-    			String outFile = "C:/openchemPdfs/" + rootDirName
+    			String outFile = "D:/openchemPdfs/"+course+"/" + rootDirName
     					+ "/" + type + "/" + "1.pdf";
     			if (pdfRange.size() > 1){
 	    			rangeFrom = Integer.parseInt(pdfRange.get(0));
@@ -122,13 +122,12 @@ public class parser {
 		}
 	}
 	
-
-	public static void main(String[] args) {
-        try
+	public static void initializePdfSplit(String course){
+		try
         {
-        	PrintWriter writer = new PrintWriter("laravelSeed.txt", "UTF-8");
+        	PrintWriter writer = new PrintWriter(course + " Seed.txt", "UTF-8");
         	
-            FileInputStream file = new FileInputStream(new File("Chem 1A.xlsx"));
+            FileInputStream file = new FileInputStream(new File(course+ ".xlsx"));
  
             //Create Workbook instance holding reference to .xlsx file
             XSSFWorkbook workbook = new XSSFWorkbook(file);
@@ -153,28 +152,28 @@ public class parser {
                 String rootDirectoryName = titleCell.getStringCellValue().replaceAll("\\W", "");
                 
                 if (readingsCell != null || problemsCell != null || solutionsCell != null){
-                	new File("C:\\openchemPdfs\\"+rootDirectoryName).mkdir();
+                	new File("D:\\openchemPdfs\\"+course+"\\"+rootDirectoryName).mkdir();
                 }
                 
                 // Readings
                 if (readingsCell != null){
 	                String readingsString = dataFormatter.formatCellValue(readingsCell);
-	                new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Readings").mkdir();
-	                makePdfs(readingsString, "Readings", rootDirectoryName);
+	                new File("D:\\openchemPdfs\\"+course+"\\"+rootDirectoryName+"\\Readings").mkdir();
+	                makePdfs(readingsString, "Readings", course, rootDirectoryName);
                 }
                 
                 // Problems
                 if (problemsCell != null){
 	                String problemsString = dataFormatter.formatCellValue(problemsCell);
-	        		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Problems").mkdir();
-	        		makePdfs(problemsString, "Problems", rootDirectoryName);
+	        		new File("D:\\openchemPdfs\\"+course+"\\"+rootDirectoryName+"\\Problems").mkdir();
+	        		makePdfs(problemsString, "Problems", course, rootDirectoryName);
                 }
                 
         		// Solutions
                 if (solutionsCell != null){
 	                String solutionsString = dataFormatter.formatCellValue(solutionsCell);
-	                new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Solutions").mkdir();
-	                makePdfs(solutionsString, "Solutions", rootDirectoryName);    
+	                new File("D:\\openchemPdfs\\"+course+"\\"+rootDirectoryName+"\\Solutions").mkdir();
+	                makePdfs(solutionsString, "Solutions", course, rootDirectoryName);    
                 }
                 rowCounter ++;
  
@@ -187,88 +186,13 @@ public class parser {
         	System.out.println("Third Exception, Row Number: " + rowCounter);
             e.printStackTrace();
         }		
-		
+	}
+	
+
+	public static void main(String[] args) {
+       
+		initializePdfSplit("Chem 1A");
 		
 	}
 
 }
-
-
-
-/*
-for (int i = 0; i < 6; i++){
-	Cell cell = row.getCell(i);
-	if (row.getCell(i) != null){
-		List<String> items;
-    	switch (cell.getCellType())
-    	{
-	      case Cell.CELL_TYPE_NUMERIC:
-	      	DataFormatter dataFormatter = new DataFormatter();
-	      	String numVal = dataFormatter.formatCellValue(cell);
-	      	System.out.print(numVal + " ");
-	      	break;
-		  case Cell.CELL_TYPE_STRING:
-		  	String stringVal = cell.getStringCellValue();
-		  	switch(i){
-		  	case 0:
-		  		rootDirectoryName = stringVal;
-		  		new File("C:\\openchemPdfs\\"+rootDirectoryName).mkdir();
-		  		break;
-		  	case 3:
-		  		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Readings").mkdir();
-		  	case 4:
-		  		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Problems").mkdir();
-		  	case 5:
-		  		new File("C:\\openchemPdfs\\"+rootDirectoryName+"\\Solutions").mkdir();
-		  	}
-		  	if (i == 0){
-		  		stringVal = stringVal.replaceAll("\\W", "");
-		  		System.out.print(stringVal + " ");
-		  	}
-		  	else if (i == 3){
-		  		items = Arrays.asList(stringVal.split("-"));
-		  		//System.out.print(Integer.parseInt(items.get(0))+1);
-		  		for (int j = 0; j < items.size(); j++){
-		  			
-		  		}
-		  	}
-		  	else{
-		  		System.out.print(stringVal + " ");
-	      	}
-	       break;
-    	}
-	}
-}*/
-/*
-while (cellIterator.hasNext())
-{
-    Cell cell = cellIterator.next();
-    //Check the cell type and format accordingly
-  
-    switch (cell.getCellType())
-    {
-        case Cell.CELL_TYPE_NUMERIC:
-        	DataFormatter dataFormatter = new DataFormatter();
-        	String numVal = dataFormatter.formatCellValue(cell);
-        	System.out.print(numVal + " ");
-        	break;
-        case Cell.CELL_TYPE_STRING:
-        	String stringVal = cell.getStringCellValue();
-        	if (counter == 0){
-        		stringVal = stringVal.replaceAll("\\W", "");
-        		System.out.print(stringVal + " ");
-        	}
-        	else if (counter >= 3 && counter  <= 5){
-        		List<String> items = Arrays.asList(stringVal.split("-"));
-        		System.out.print(items + " ");
-        	}
-        	else{
-        		System.out.print(stringVal + " ");
-        	}
-            
-            
-            break;
-    }
-    counter ++;
-}
-counter = 0;*/
