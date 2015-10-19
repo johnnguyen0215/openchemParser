@@ -33,24 +33,20 @@ public class generator {
         return null;
 	}
 	
-	public static ArrayList<String> generateFileCode(String pdfPages, String dirName, String rootDirName, PrintWriter writer){
-		String category = "";
+	public static ArrayList<String> generateFileCode(String pdfPages, String dirName, String rootDirName, String course, PrintWriter writer){
 		String type = "";
 		String typeName = "";
 		switch(dirName){
 			case "Readings":
-				category = "Chemtext";
-				type = "chemtext_type";
+				type = "Chemtext";
 				typeName = "chemtext_name";
 				break;
 			case "Problems":
-				category = "Problem";
-				type = "problem_type";
+				type = "Problem";
 				typeName = "problem_name";
 				break;
 			case "Solutions":
-				category = "Solution";
-				type = "solution_type";
+				type = "Solution";
 				typeName = "solution_name";
 				break;
 		}
@@ -58,17 +54,15 @@ public class generator {
 		if (pdfPages.contains(",")){
         	List<String> chunks = Arrays.asList(pdfPages.replaceAll("\\s", "").split(","));
         	for (int i = 0; i < chunks.size(); i++){
-        		String code = "$"+rootDirName + dirName + (i+1) + " = " + category + "::create(array('" + type
-        				+ "' => 'pdf', '" + typeName + "' => 'OpenStax Chemistry', "
-        				+ "'url' => " + "\"../uploads/Chem1A/" + rootDirName + "/" + dirName+"/"+((i+1)+".pdf\"));");
+        		String code = "$"+rootDirName + dirName + (i+1) + " = " + type + "::create(array('" + typeName + "' => 'OpenStax Chemistry', "
+        				+ "'url' => " + "\"../uploads/"+course+"/" + rootDirName + "/" + dirName+"/"+((i+1)+".pdf\"));");
         		writer.println(code);
         		variables.add("$" + rootDirName + dirName + (i+1));
         	}
 		}
 		else{
-			String code = "$"+rootDirName + dirName + " = " + category + "::create(array('" + type
-    				+ "' => 'pdf', '" + typeName + "' => 'OpenStax Chemistry', "
-    				+ "'url' => " + "\"../uploads/Chem1A/"+ rootDirName + "/" + dirName+"/"+"1.pdf\"));";
+			String code = "$"+rootDirName + dirName + " = " + type + "::create(array('" + typeName + "' => 'OpenStax Chemistry', "
+    				+ "'url' => " + "\"../uploads/"+course+"/"+ rootDirName + "/" + dirName+"/"+"1.pdf\"));";
 			writer.println(code);
 			variables.add("$" + rootDirName + dirName);
 		}
@@ -77,8 +71,8 @@ public class generator {
 		
 	}
 	
-	public static String generateTopicCode(String title, String videoUrl, String videoId, String videoDescription, PrintWriter writer){
-		String code = "$" + title.replaceAll("\\W", "") + " = " + "Topic::create(array('topic_name' => \"" + title + "\", 'video_url' => '"
+	public static String generateTopicCode(String course,String title, String videoUrl, String videoId, String videoDescription, PrintWriter writer){
+		String code = "$" + course.replaceAll("\\W", "") + title.replaceAll("\\W", "") + " = " + "Topic::create(array('topic_name' => \"" + title + "\", 'video_url' => '"
 		+ videoUrl + "', 'video_id' => \"" + videoId + "\", 'video_description' => \"" + videoDescription + "\"));";
 		writer.println(code);
 		
@@ -102,16 +96,12 @@ public class generator {
 		}
 	}
 	
-	
-	
-	public static void main(String[] args) {
-
-		
+	public static void initializeCodeGen(String course){
         try
         {
-        	PrintWriter writer = new PrintWriter("laravelSeed.txt", "UTF-8");
+        	PrintWriter writer = new PrintWriter(course + " Seed.txt", "UTF-8");
         	
-            FileInputStream file = new FileInputStream(new File("Chem 1A.xlsx"));
+            FileInputStream file = new FileInputStream(new File(course+".xlsx"));
  
             //Create Workbook instance holding reference to .xlsx file
             XSSFWorkbook workbook = new XSSFWorkbook(file);
@@ -124,21 +114,41 @@ public class generator {
             
             DataFormatter dataFormatter = new DataFormatter();
             
-            String chem1ADescription = "Description: Chem 1A is the first quarter of General "
-            		+ "Chemistry and covers the following topics: atomic structure; "
-            		+ "general properties of the elements; covalent, ionic, and metallic bonding; "
-            		+ "intermolecular forces; mass relationships. General Chemistry (Chem 1A) is part of "
-            		+ "OpenChemThis video is part of a 23-lecture undergraduate-level course titled "
-            		+ "'General Chemistry' taught at UC Irvine by Amanda Brindley, Ph.D."; 
-
+            String videoDescription = "";
+            
+            switch (course) {
+	            case "Chem 1A":
+	            	videoDescription = "Chem 1A is the first quarter of General "
+	                		+ "Chemistry and covers the following topics: atomic structure; "
+	                		+ "general properties of the elements; covalent, ionic, and metallic bonding; "
+	                		+ "intermolecular forces; mass relationships. General Chemistry (Chem 1A) is part of "
+	                		+ "OpenChem. This video is part of a 23-lecture undergraduate-level course titled "
+	                		+ "'General Chemistry' taught at UC Irvine by Amanda Brindley, Ph.D."; 
+	            	break;
+	            case "Chem 1B":
+	            	videoDescription = "UCI Chem 1B is the second quarter of General "
+	                		+ "Chemistry and covers the following topics: properties of gases, liquids, solids; "
+	                		+ "changes of state; properties of solutions; stoichiometry; thermochemistry; and thermodynamics."
+	                		+ "General Chemistry (Chem 1B) is part of OpenChem. This video is part of a 17-lecture "
+	                		+ "undergraduate-level course titled 'General Chemistry' taught at UC Irvine by "
+	                		+ "Donald R. Blake, Ph.D.";
+	            /*
+	            case "Chem 1C":
+	            	videoDescription = "UCI Chem 1C is the third and final quarter of General Chemistry "
+	                		+ "series and covers the following topics: equilibria, aqueous acid-base equilibria, solubility equilibria, "
+	                		+ "oxidation reduction reactions, electrochemistry; kinetics; special topics. "
+	                		+ "General Chemistry (Chem 1C) is part of OpenChem. This video is part of a 26-lecture undergraduate-level "
+	                		+ "course titled 'General Chemistry' taught at UC Irvine by Ramesh D. Arasasingham, Ph.D.";*/
+            }
+            
             while (rowIterator.hasNext())
             {
                 Row row = rowIterator.next();
                 //For each row, iterate through all the columns
                 
-                Cell titleCell = row.getCell(0);
-                Cell videoInCell = row.getCell(1);
-                Cell videoOutCell = row.getCell(2);
+                Cell titleCell = row.getCell(0, Row.RETURN_BLANK_AS_NULL);
+                Cell videoInCell = row.getCell(1, Row.RETURN_BLANK_AS_NULL);
+                Cell videoOutCell = row.getCell(2, Row.RETURN_BLANK_AS_NULL);
                 Cell readingsCell = row.getCell(3, Row.RETURN_BLANK_AS_NULL);
         		Cell problemsCell = row.getCell(4, Row.RETURN_BLANK_AS_NULL);
 				Cell solutionsCell = row.getCell(5, Row.RETURN_BLANK_AS_NULL);
@@ -148,10 +158,19 @@ public class generator {
                 String videoUrl = videoUrlCell.getStringCellValue();
                 String videoId = getVideoId(videoUrl);
                 String videoIn = dataFormatter.formatCellValue(videoInCell);
-                String videoOut = dataFormatter.formatCellValue(videoOutCell);
                 
-                String youtubeUrl = "https://www.youtube.com/watch?start="+
-                videoIn+"&end="+videoOut+"&v="+videoId;
+                String youtubeUrl = "";
+                
+                if (videoOutCell == null){
+                	youtubeUrl = "https://www.youtube.com/watch?start="+
+                            videoIn+"&v="+videoId;
+                }
+                else {
+                	String videoOut = dataFormatter.formatCellValue(videoOutCell);
+                    youtubeUrl = "https://www.youtube.com/watch?start="+
+                            videoIn+"&end="+videoOut+"&v="+videoId;
+                }
+                
                 
                 ArrayList<String> readingsVariables = new ArrayList<String>();
                 ArrayList<String> problemsVariables = new ArrayList<String>();
@@ -160,22 +179,22 @@ public class generator {
                 if (readingsCell != null){
 	                String readingsString = dataFormatter.formatCellValue(readingsCell);
 	                readingsVariables = generateFileCode(readingsString, "Readings",
-	                		title.replaceAll("\\W", ""), writer);
+	                		title.replaceAll("\\W", ""), course, writer);
                 }
                 
                 if (problemsCell != null){
                 	String problemsString = dataFormatter.formatCellValue(problemsCell);
                 	problemsVariables = generateFileCode(problemsString, "Problems",
-	                		title.replaceAll("\\W", ""), writer);
+	                		title.replaceAll("\\W", ""), course, writer);
                 }
                 
                 if (solutionsCell != null){
                 	String solutionsString = dataFormatter.formatCellValue(solutionsCell);
 	                solutionsVariables = generateFileCode(solutionsString, "Solutions",
-	                		title.replaceAll("\\W", ""), writer);
+	                		title.replaceAll("\\W", ""), course, writer);
                 }
                 
-                String topicVariable = generateTopicCode(title, youtubeUrl, videoId, chem1ADescription, writer);
+                String topicVariable = generateTopicCode(course, title, youtubeUrl, videoId, videoDescription, writer);
                 
                 generateAttachmentsCode(topicVariable, readingsVariables, problemsVariables, solutionsVariables, writer);
                 
@@ -189,6 +208,14 @@ public class generator {
         {
             e.printStackTrace();
         }		
+            
+	}
+	
+	
+	public static void main(String[] args) {
+		initializeCodeGen("Chem 1A");
+		//initializeCodeGen("Chem 1B");
+		//initializeCodeGen("Chem 1C");
 	}
 
 }
