@@ -192,6 +192,8 @@ public class parser {
 	public static void main(String[] args) {
        
 		initializePdfSplit("Chem 1A");
+		initializePdfSplit("Chem 1B");
+		initializePdfSplit("Chem 1C");
 		
 	}
 

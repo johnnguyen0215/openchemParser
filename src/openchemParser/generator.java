@@ -1,6 +1,6 @@
 package openchemParser;
 
-import java.io.File;  
+import java.io.File; 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,6 +21,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class generator {
+	
+	private static int rowCounter = 1;
 	
 	public static String getVideoId(String url){
         String pattern = "(?<=watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
@@ -71,8 +73,8 @@ public class generator {
 		
 	}
 	
-	public static String generateTopicCode(String title, String videoUrl, String videoId, String videoDescription, PrintWriter writer){
-		String code = "$" + title.replaceAll("\\W", "") + " = " + "Topic::create(array('topic_name' => \"" + title + "\", 'video_url' => '"
+	public static String generateTopicCode(String course,String title, String videoUrl, String videoId, String videoDescription, PrintWriter writer){
+		String code = "$" + title.replaceAll("\\W", "") + " = " + "Topic::create(array('topic_name' => \"" + course + " - " + title + "\", 'video_url' => '"
 		+ videoUrl + "', 'video_id' => \"" + videoId + "\", 'video_description' => \"" + videoDescription + "\"));";
 		writer.println(code);
 		
@@ -118,7 +120,7 @@ public class generator {
             
             switch (course) {
 	            case "Chem 1A":
-	            	videoDescription = "Description: Chem 1A is the first quarter of General "
+	            	videoDescription = "Chem 1A is the first quarter of General "
 	                		+ "Chemistry and covers the following topics: atomic structure; "
 	                		+ "general properties of the elements; covalent, ionic, and metallic bonding; "
 	                		+ "intermolecular forces; mass relationships. General Chemistry (Chem 1A) is part of "
@@ -126,20 +128,23 @@ public class generator {
 	                		+ "'General Chemistry' taught at UC Irvine by Amanda Brindley, Ph.D."; 
 	            	break;
 	            case "Chem 1B":
-	            	videoDescription = "Description: UCI Chem 1B is the second quarter of General "
+	            	videoDescription = "UCI Chem 1B is the second quarter of General "
 	                		+ "Chemistry and covers the following topics: properties of gases, liquids, solids; "
 	                		+ "changes of state; properties of solutions; stoichiometry; thermochemistry; and thermodynamics."
 	                		+ "General Chemistry (Chem 1B) is part of OpenChem. This video is part of a 17-lecture "
 	                		+ "undergraduate-level course titled 'General Chemistry' taught at UC Irvine by "
 	                		+ "Donald R. Blake, Ph.D.";
+	            	break;
+	            
 	            case "Chem 1C":
-	            	videoDescription = "Description: UCI Chem 1C is the third and final quarter of General Chemistry "
+	            	videoDescription = "UCI Chem 1C is the third and final quarter of General Chemistry "
 	                		+ "series and covers the following topics: equilibria, aqueous acid-base equilibria, solubility equilibria, "
 	                		+ "oxidation reduction reactions, electrochemistry; kinetics; special topics. "
 	                		+ "General Chemistry (Chem 1C) is part of OpenChem. This video is part of a 26-lecture undergraduate-level "
 	                		+ "course titled 'General Chemistry' taught at UC Irvine by Ramesh D. Arasasingham, Ph.D.";
+	            	break;
+            	
             }
-            
             while (rowIterator.hasNext())
             {
                 Row row = rowIterator.next();
@@ -152,12 +157,21 @@ public class generator {
         		Cell problemsCell = row.getCell(4, Row.RETURN_BLANK_AS_NULL);
 				Cell solutionsCell = row.getCell(5, Row.RETURN_BLANK_AS_NULL);
                 Cell videoUrlCell = row.getCell(6);
-                
-                String title = titleCell.getStringCellValue();
-                String videoUrl = videoUrlCell.getStringCellValue();
-                String videoId = getVideoId(videoUrl);
-                String videoIn = dataFormatter.formatCellValue(videoInCell);
-                
+                String title = "";
+                String videoUrl = "";
+                String videoId = "";
+                String videoIn = "";
+                if (titleCell != null){
+                	title = titleCell.getStringCellValue();
+                }
+                if (videoUrlCell != null){
+                	videoUrl = videoUrlCell.getStringCellValue();
+                	videoId = getVideoId(videoUrl);
+                }
+                if (videoInCell != null){
+                	videoIn = dataFormatter.formatCellValue(videoInCell);
+                }
+             
                 String youtubeUrl = "";
                 
                 if (videoOutCell == null){
@@ -193,11 +207,13 @@ public class generator {
 	                		title.replaceAll("\\W", ""), course, writer);
                 }
                 
-                String topicVariable = generateTopicCode(title, youtubeUrl, videoId, videoDescription, writer);
+                if (title != ""){
+	                String topicVariable = generateTopicCode(course, title, youtubeUrl, videoId, videoDescription, writer);
+	                
+	                generateAttachmentsCode(topicVariable, readingsVariables, problemsVariables, solutionsVariables, writer);
+                }
                 
-                generateAttachmentsCode(topicVariable, readingsVariables, problemsVariables, solutionsVariables, writer);
-                
-                
+                rowCounter ++;
             }
             file.close();
             writer.close();
@@ -205,6 +221,7 @@ public class generator {
         }
         catch (Exception e)
         {
+        	System.out.println("Exception Occurred " + rowCounter);
             e.printStackTrace();
         }		
             
@@ -212,8 +229,8 @@ public class generator {
 	
 	
 	public static void main(String[] args) {
-		//initializeCodeGen("Chem 1A");
-		//initializeCodeGen("Chem 1B");
+		initializeCodeGen("Chem 1A");
+		initializeCodeGen("Chem 1B");
 		initializeCodeGen("Chem 1C");
 	}
 
